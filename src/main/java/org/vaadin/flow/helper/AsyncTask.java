@@ -22,35 +22,35 @@ public class AsyncTask extends Task {
     /**
      * Value for {@link #missedPolls} for push enabled tasks
      */
-    private static final int PUSH_ACTIVE = -1;
+    protected static final int PUSH_ACTIVE = -1;
 
     //--- Fields
 
     /**
      * {@link FutureTask} representing action
      */
-    private FutureTask<AsyncTask> task;
+    protected FutureTask<AsyncTask> task;
     /**
      * Registration for PollEvent listener
      */
-    private Registration pollingListenerRegistration;
+    protected Registration pollingListenerRegistration;
     /**
      * Registration for DetachEvent listener
      */
-    private Registration componentDetachListenerRegistration;
+    protected Registration componentDetachListenerRegistration;
     /**
      * Registration for UI DetachEvent listener
      */
-    private Registration uiDetachListenerRegistration;
+    protected Registration uiDetachListenerRegistration;
     /**
      * Registration for BeforeLeave event listener
      */
-    private Registration beforeLeaveListenerRegistration;
+    protected Registration beforeLeaveListenerRegistration;
     /**
      * Number of poll events happened while action is executing, or {@link #PUSH_ACTIVE} if
      * push is used for current task
      */
-    private AtomicInteger missedPolls = new AtomicInteger();
+    protected AtomicInteger missedPolls = new AtomicInteger();
     /**
      * {@code true}, if thread may be interrupted if UI/Component detaches
      */
@@ -149,7 +149,7 @@ public class AsyncTask extends Task {
      *
      * @param action Action
      */
-    private void registerPush(Component component, Action action) {
+    protected void registerPush(Component component, Action action) {
         add();
         missedPolls.set(PUSH_ACTIVE);
 
@@ -167,7 +167,7 @@ public class AsyncTask extends Task {
      *
      * @param action Action
      */
-    private void registerPoll(Component component, Action action) {
+    protected void registerPoll(Component component, Action action) {
         add();
 
         task = createFutureTask(action);
@@ -209,14 +209,14 @@ public class AsyncTask extends Task {
     /**
      * Execute task in {@link AsyncManager#getExecutorService()} executor
      */
-    private void execute() {
+    protected void execute() {
         getAsyncManager().getExecutorService().execute(task);
     }
 
     /**
      * Add current task to {@link AsyncManager#asyncTasks}
      */
-    private void add() {
+    protected void add() {
         getAsyncManager().addAsyncTask(getUI(), this);
     }
 
@@ -280,7 +280,7 @@ public class AsyncTask extends Task {
      *
      * @param ignore component event
      */
-    private void onDetachEvent(DetachEvent ignore) {
+    protected void onDetachEvent(DetachEvent ignore) {
         // cancel deregisters all listeners via remove()
         cancel();
     }
@@ -290,7 +290,7 @@ public class AsyncTask extends Task {
      *
      * @param ignore component event
      */
-    private void onBeforeLeaveEvent(BeforeLeaveEvent ignore) {
+    protected void onBeforeLeaveEvent(BeforeLeaveEvent ignore) {
         // cancel deregisters all listeners
         cancel();
     }
@@ -300,7 +300,7 @@ public class AsyncTask extends Task {
      *
      * @param ignore component event
      */
-    private void onPollEvent(PollEvent ignore) {
+    protected void onPollEvent(PollEvent ignore) {
         if (missedPolls.get() != PUSH_ACTIVE) {
             missedPolls.incrementAndGet();
             getAsyncManager().adjustPollingInterval(getUI());

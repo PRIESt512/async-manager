@@ -20,7 +20,7 @@ public abstract class Task {
     /**
      * Owning UI for current task
      */
-    private UI parentUI;
+    private volatile UI parentUI;
 
     /**
      * Create a new task
