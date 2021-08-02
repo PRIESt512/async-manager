@@ -12,6 +12,8 @@ public class NonBlockingTask extends AsyncTask {
 
     private volatile Future<Void> vaadinFuture;
 
+    private volatile Command command;
+
     /**
      * Create a new task
      *
@@ -23,15 +25,12 @@ public class NonBlockingTask extends AsyncTask {
 
     @Override
     public void push(Command command) {
-        task = createFutureTask(command);
+        this.command = command;
         execute();
     }
 
-    private FutureTask<AsyncTask> createFutureTask(Command command) {
+    private FutureTask<AsyncTask> createFutureTask() {
         return new FutureTask<>(() -> {
-            if (task.isCancelled()) {
-                return;
-            }
             if (getUI() == null) {
                 return;
             }
@@ -67,6 +66,8 @@ public class NonBlockingTask extends AsyncTask {
         componentDetachListenerRegistration = component.addDetachListener(this::onDetachEvent);
         uiDetachListenerRegistration = getUI().addDetachListener(this::onDetachEvent);
         beforeLeaveListenerRegistration = getUI().addBeforeLeaveListener(this::onBeforeLeaveEvent);
+
+        task = createFutureTask();
     }
 
     @Override
@@ -87,11 +88,15 @@ public class NonBlockingTask extends AsyncTask {
         beforeLeaveListenerRegistration = getUI().addBeforeLeaveListener(this::onBeforeLeaveEvent);
 
         getAsyncManager().adjustPollingInterval(getUI());
+
+        task = createFutureTask();
     }
 
     @Override
     public void cancel() {
-        vaadinFuture.cancel(true);
+        if (vaadinFuture != null) {
+            vaadinFuture.cancel(true);
+        }
         super.cancel();
     }
 }

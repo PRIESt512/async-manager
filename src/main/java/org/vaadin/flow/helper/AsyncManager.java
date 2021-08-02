@@ -97,6 +97,11 @@ public final class AsyncManager {
         return getInstance().registerAsync(component, action);
     }
 
+    public static Task registerNonBlocking(Component component, Action action) {
+        return getInstance().registerNonBlockingTask(component, action);
+    }
+
+
     /**
      * Register and runs eager action. Action are started immediately in the same thread.
      * <p>
@@ -203,6 +208,14 @@ public final class AsyncManager {
         Objects.requireNonNull(component);
 
         Task task = new AsyncTask(this);
+        registerTask(component, task, action);
+        return task;
+    }
+
+    public Task registerNonBlockingTask(Component component, Action action) {
+        Objects.requireNonNull(component);
+
+        Task task = new NonBlockingTask(this);
         registerTask(component, task, action);
         return task;
     }
